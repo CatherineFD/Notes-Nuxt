@@ -1,7 +1,12 @@
 <script setup lang="ts" generic="T extends { id: number | string }">
-defineProps<{
-  data: T[]
-}>()
+withDefaults(
+  defineProps<{
+    data?: T[]
+  }>(),
+  {
+    data: () => [],
+  },
+)
 
 defineOptions({
   inheritAttrs: true,
