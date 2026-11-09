@@ -2,7 +2,7 @@
 import NoteEditorFeature from '~/features/noteEditorFeature/NoteEditorFeature.vue';
 import type { Note } from '~/entities/note/model/types';
 import { useNoteEditorStore } from '~/features/noteEditorFeature/store/useNoteEditorStore';
-import ButtonLink from '~/shared/ui/base/ButtonLink.vue';
+import ButtonLink from '~/shared/ui/button/ButtonLink.vue';
 
 const useNotesStore = useNuxtApp().$notesStore;
 const notesStore = useNotesStore();

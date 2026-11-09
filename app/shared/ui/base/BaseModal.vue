@@ -1,5 +1,7 @@
+<!-- app/shared/ui/base/BaseModal.vue -->
 <script setup lang="ts">
-import BaseButton from './BaseButton.vue';
+import { ref, watch, nextTick } from 'vue'
+import BaseButton from '../button/BaseButton.vue';
 
 interface Props {
   modelValue: boolean
@@ -81,7 +83,7 @@ defineOptions({ inheritAttrs: false })
 
 <template>
   <Teleport to="body">
-    <div v-if="modelValue" class="modal" @keydown="onKeydown">
+    <div v-if="modelValue" class="modal" @keydown="onKeydown" @click.self="close">
       <div
         ref="dialogRef"
         class="modal__dialog"
@@ -96,6 +98,7 @@ defineOptions({ inheritAttrs: false })
 
           <BaseButton
             type="button"
+            variant="ghost"
             class="modal__close"
             aria-label="Закрыть"
             @click="close"
@@ -125,7 +128,7 @@ defineOptions({ inheritAttrs: false })
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(74, 69, 60, 0.4); 
 
   &__dialog {
     display: flex;
@@ -133,9 +136,9 @@ defineOptions({ inheritAttrs: false })
     width: 100%;
     max-width: 480px;
     max-height: 90vh;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: $color-surface;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(74, 69, 60, 0.1); 
     outline: none;
   }
 
@@ -144,43 +147,50 @@ defineOptions({ inheritAttrs: false })
     align-items: center;
     justify-content: space-between;
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid $color-border;
+    background: $color-surface-alt;
+    border-radius: 0.75rem 0.75rem 0 0;
   }
 
   &__title {
     margin: 0;
     font-size: 1.125rem;
     font-weight: 600;
-    color: #1a1a1a;
+    color: $color-text-primary;
   }
 
   &__close {
-    width: 24px;
-    height: 24px;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-    color: #666;
-    font-size: 1rem;
-    cursor: pointer;
+    padding: 0.25rem !important;
+    width: 32px;
+    height: 32px;
+    border: none !important;
+    border-radius: 0.375rem;
+    background: transparent !important;
+    color: $color-text-secondary;
+    font-size: 1.25rem;
+    line-height: 1;
 
     &:hover {
-      background: #f0f0f0;
+      background: rgba(154, 148, 110, 0.1) !important;
+      color: $color-text-primary;
     }
   }
 
   &__body {
-    padding: 1rem 1.5rem;
+    padding: 1.5rem;
     overflow-y: auto;
     flex: 1;
+    color: $color-text-primary;
   }
 
   &__footer {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
+    gap: 0.75rem;
     padding: 1rem 1.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid $color-border;
+    background: $color-surface-alt;
+    border-radius: 0 0 0.75rem 0.75rem;
   }
 }
 </style>

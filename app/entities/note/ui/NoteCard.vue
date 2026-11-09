@@ -1,6 +1,8 @@
+<!-- app/entities/note/ui/NoteCard.vue -->
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Note } from '../model/types'
-import BaseButton from '~/shared/ui/base/BaseButton.vue'
+import BaseButton from '~/shared/ui/button/BaseButton.vue'
 
 const props = defineProps<{
   note: Note
@@ -20,10 +22,10 @@ const hasMoreTodos = computed(() => props.note.todoList.length > 3)
     <header class="note-card__header">
       <h3 class="note-card__title">{{ note.title || 'Без названия' }}</h3>
       <div class="note-card__actions">
-        <BaseButton variant="secondary" size="small" @click.stop="emit('edit', note)">
+        <BaseButton variant="secondary" @click.stop="emit('edit', note)">
           Изменить
         </BaseButton>
-        <BaseButton variant="danger" size="small" @click.stop="emit('delete', note)">
+        <BaseButton variant="danger" @click.stop="emit('delete', note)">
           Удалить
         </BaseButton>
       </div>
@@ -52,15 +54,14 @@ const hasMoreTodos = computed(() => props.note.todoList.length > 3)
 
 <style lang="scss" scoped>
 .note-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1rem;
-  transition: box-shadow 0.2s, transform 0.2s;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(74, 69, 60, 0.08);
   }
 
   &__header {
@@ -75,8 +76,9 @@ const hasMoreTodos = computed(() => props.note.todoList.length > 3)
     margin: 0;
     font-size: 1.125rem;
     font-weight: 600;
-    color: #111827;
+    color: $color-text-primary;
     word-break: break-word;
+    line-height: 1.4;
   }
 
   &__actions {
@@ -99,24 +101,26 @@ const hasMoreTodos = computed(() => props.note.todoList.length > 3)
     align-items: flex-start;
     gap: 0.5rem;
     font-size: 0.875rem;
-    color: #4b5563;
+    color: $color-text-secondary;
+    line-height: 1.4;
   }
 
   &__todo-text--completed {
     text-decoration: line-through;
-    color: #9ca3af;
+    color: $color-text-muted;
   }
 
   &__empty-todos {
     font-size: 0.875rem;
-    color: #9ca3af;
+    color: $color-text-muted;
     font-style: italic;
+    margin: 0;
   }
 
   &__more {
     font-size: 0.75rem;
-    color: #6b7280;
-    margin-top: 0.5rem;
+    color: $color-text-muted;
+    margin: 0.5rem 0 0 0;
   }
 }
 
@@ -126,17 +130,19 @@ const hasMoreTodos = computed(() => props.note.todoList.length > 3)
   justify-content: center;
   width: 16px;
   height: 16px;
-  border: 1px solid #d1d5db;
+  border: 1px solid $color-border;
   border-radius: 4px;
-  background: #f9fafb;
-  font-size: 12px;
-  color: #10b981;
+  background: $color-surface-alt;
+  font-size: 11px;
+  color: $color-success;
   flex-shrink: 0;
   margin-top: 2px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 
   &--checked {
-    background: #d1fae5;
-    border-color: #10b981;
+    background: rgba(140, 184, 140, 0.2); // $color-success с 20% прозрачности
+    border-color: $color-success;
+    color: $color-success;
   }
 }
 </style>

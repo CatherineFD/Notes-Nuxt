@@ -72,39 +72,45 @@ const errorId = `${inputId}-error`
   &__label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--color-text-primary, #1f2937);
+    color: $color-text-primary;
   }
 
   &__required {
-    color: var(--color-danger, #dc2626);
+    color: $color-danger;
   }
 
   &__field {
     padding: 0.625rem 0.75rem;
-    border: 1px solid var(--color-border, #d1d5db);
+    border: 1px solid $color-border;
     border-radius: 0.5rem;
     font: inherit;
-    color: inherit;
-    background-color: var(--color-surface, #fff);
+    color: $color-text-primary;
+    background-color: $color-surface;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &::placeholder {
+      color: $color-text-muted;
+      opacity: 0.7;
+    }
 
     &:focus-visible {
       outline: none;
-      border-color: var(--color-primary, #2563eb);
-      box-shadow: 0 0 0 3px rgb(37 99 235 / 20%);
+      border-color: $color-primary;
+      box-shadow: 0 0 0 3px rgba(141, 135, 65, 0.2);
     }
 
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+      background-color: $color-surface-alt;
     }
 
     &--error {
-      border-color: var(--color-danger, #dc2626);
+      border-color: $color-danger;
 
       &:focus-visible {
-        border-color: var(--color-danger, #dc2626);
-        box-shadow: 0 0 0 3px rgb(220 38 38 / 20%);
+        border-color: $color-danger;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
       }
     }
   }
@@ -112,7 +118,7 @@ const errorId = `${inputId}-error`
   &__error {
     margin: 0;
     font-size: 0.8125rem;
-    color: var(--color-danger, #dc2626);
+    color: $color-danger;
   }
 }
 </style>

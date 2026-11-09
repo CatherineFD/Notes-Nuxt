@@ -5,7 +5,7 @@ import type { Note } from '~/entities/note/model/types'
 
 import NoteCard from '~/entities/note/ui/NoteCard.vue'
 import BaseList from '~/shared/ui/base/BaseList.vue'
-import BaseButton from '~/shared/ui/base/BaseButton.vue'
+import BaseButton from '~/shared/ui/button/BaseButton.vue'
 import BaseModal from '~/shared/ui/base/BaseModal.vue'
 
 const useNotesStore = useNuxtApp().$notesStore;

@@ -62,10 +62,10 @@ defineProps<{
     height: 18px;
     flex-shrink: 0;
 
-    border: 1px solid #d1d5db;
+    border: 1px solid $color-border;
     border-radius: 4px;
-    background-color: #fff;
-    color: #fff;
+    background-color: $color-surface;
+    color: #fff; 
 
     transition:
       background-color 0.15s ease,
@@ -80,8 +80,8 @@ defineProps<{
   }
 
   &__input:checked + &__box {
-    background-color: #2563eb;
-    border-color: #2563eb;
+    background-color: $color-primary;
+    border-color: $color-primary;
 
     .base-checkbox__check {
       opacity: 1;
@@ -89,22 +89,24 @@ defineProps<{
   }
 
   &__input:focus-visible + &__box {
-    outline: 2px solid #2563eb;
+    outline: 2px solid $color-primary;
     outline-offset: 2px;
   }
 
   &__input:disabled + &__box {
     opacity: 0.5;
+    cursor: not-allowed;
   }
 
   &__input:disabled ~ &__label {
-    color: #9ca3af;
+    color: $color-text-muted;
     cursor: not-allowed;
   }
 
   &__label {
     font-size: 14px;
-    color: #1f2937;
+    color: $color-text-primary;
+    transition: color 0.15s ease;
   }
 }
 </style>

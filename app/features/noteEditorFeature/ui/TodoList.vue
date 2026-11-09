@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Todo } from '~/entities/note/model/types'
 import BaseList from '~/shared/ui/base/BaseList.vue'
-import BaseButton from '~/shared/ui/base/BaseButton.vue'
+import BaseButton from '~/shared/ui/button/BaseButton.vue'
 import TodoItem from './TodoItem.vue'
 
 defineProps<{

@@ -10,8 +10,8 @@ import {
 } from './model/commands'
 import type { Note, Todo } from '~/entities/note/model/types'
 
-import BaseInput from '~/shared/ui/input/BaseInput.vue'
-import BaseButton from '~/shared/ui/base/BaseButton.vue'
+import BaseInput from '~/shared/ui/base/BaseInput.vue'
+import BaseButton from '~/shared/ui/button/BaseButton.vue'
 import TodoList from './ui/TodoList.vue'
 import BaseModal from '~/shared/ui/base/BaseModal.vue'
 

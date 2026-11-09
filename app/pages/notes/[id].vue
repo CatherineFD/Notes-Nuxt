@@ -8,8 +8,8 @@ import type { Note } from '~/entities/note/model/types'
 
 import NoteEditorFeature from '~/features/noteEditorFeature/NoteEditorFeature.vue'
 import BaseModal from '~/shared/ui/base/BaseModal.vue'
-import BaseButton from '~/shared/ui/base/BaseButton.vue'
-import ButtonLink from '~/shared/ui/base/ButtonLink.vue'
+import BaseButton from '~/shared/ui/button/BaseButton.vue'
+import ButtonLink from '~/shared/ui/button/ButtonLink.vue'
 
 const route = useRoute()
 const noteId = route.params.id as string

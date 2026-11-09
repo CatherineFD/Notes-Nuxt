@@ -24,23 +24,25 @@ defineOptions({
 .card {
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(141, 135, 65, 0.08);
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 6px 16px rgba(141, 135, 65, 0.12);
+    transform: translateY(-2px);
   }
 
   &__header {
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid $color-border;
     font-weight: 600;
     font-size: 1.125rem;
-    color: #1a1a1a;
+    color: $color-text-primary;
+    background: $color-surface-alt;
 
     @media (max-width: 768px) {
       padding: 0.75rem 1rem;
@@ -51,6 +53,7 @@ defineOptions({
   &__body {
     padding: 1rem 1.25rem;
     flex: 1;
+    color: $color-text-primary;
 
     @media (max-width: 768px) {
       padding: 0.75rem 1rem;
@@ -59,8 +62,9 @@ defineOptions({
 
   &__footer {
     padding: 0.75rem 1.25rem;
-    border-top: 1px solid #f0f0f0;
-    background: #fafafa;
+    border-top: 1px solid $color-border;
+    background: $color-surface-alt;
+    color: $color-text-secondary;
 
     @media (max-width: 768px) {
       padding: 0.75rem 1rem;

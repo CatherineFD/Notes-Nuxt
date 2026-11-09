@@ -3,8 +3,8 @@ import { ref, watch, onBeforeUnmount } from 'vue'
 import { debounce } from '~/shared/lib/utils/debounce' 
 import type { Todo } from '~/entities/note/model/types'
 import BaseCheckBox from '~/shared/ui/base/BaseCheckBox.vue'
-import BaseInput from '~/shared/ui/input/BaseInput.vue'
-import BaseButton from '~/shared/ui/base/BaseButton.vue'
+import BaseInput from '~/shared/ui/base/BaseInput.vue'
+import BaseButton from '~/shared/ui/button/BaseButton.vue'
 
 const props = defineProps<{
   todo: Todo
