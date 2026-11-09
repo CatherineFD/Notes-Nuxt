@@ -34,22 +34,35 @@ export function createNotesStore(service: NotesGateway) {
       }
     }
 
+    function addNote(title: string) {
+      const newNote: Note = {
+        id: crypto.randomUUID(),
+        title: title.trim(),
+        todoList: [],
+      }
+      notes.value.push(newNote)
+      void saveNotes()
+    }
+
     async function saveNotes() {
       try {
-        await service.saveNotes(notes.value)
+        await service.saveNotes(notes.value);
+        error.value = null;
       } catch {
-        error.value = 'Не удалось сохранить заметки'
+        error.value = 'Не удалось сохранить заметки';
       }
     }
 
-    function addNote(title: string) {
-      notes.value.push({
-        id: crypto.randomUUID(),
-        title,
-        todoList: [],
-      })
+    async function saveNote(note: Note) {
+      const existingIndex = notes.value.findIndex((n) => n.id === note.id)
 
-      void saveNotes()
+      if (existingIndex !== -1) {
+        notes.value[existingIndex] = note
+      } else {
+        notes.value.push(note)
+      }
+
+      await service.saveNotes(notes.value)
     }
 
     function addTodo(noteId: string, description: string) {
@@ -75,6 +88,17 @@ export function createNotesStore(service: NotesGateway) {
       void saveNotes()
     }
 
+    function getNoteById(noteId: string): Note | undefined {
+      const note = notes.value.find((item) => item.id === noteId);
+
+      return note;
+    }
+
+    function deleteNote(noteId: string) {
+      notes.value = notes.value.filter((n) => n.id !== noteId)
+      void saveNotes()
+    }
+
     return {
       notes,
       isLoading,
@@ -84,6 +108,9 @@ export function createNotesStore(service: NotesGateway) {
       addNote,
       addTodo,
       toggleTodo,
+      getNoteById,
+      saveNote,
+      deleteNote,
     }
   })
 }

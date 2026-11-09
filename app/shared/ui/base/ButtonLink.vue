@@ -29,6 +29,7 @@ defineProps<{
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+  display: inline-block;
 
   &:disabled {
     opacity: 0.6;

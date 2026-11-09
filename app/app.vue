@@ -6,7 +6,7 @@
 </template>
 
 <style>
-#root {
+body {
   font-family: 'Inter', system-ui, sans-serif;
 }
 </style>

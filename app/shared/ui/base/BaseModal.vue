@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseButton from './BaseButton.vue';
+
 interface Props {
   modelValue: boolean
   title?: string
@@ -73,6 +75,8 @@ watch(
     }
   },
 )
+
+defineOptions({ inheritAttrs: false })
 </script>
 
 <template>
@@ -90,14 +94,14 @@ watch(
             <h2 class="modal__title">{{ title }}</h2>
           </slot>
 
-          <button
+          <BaseButton
             type="button"
             class="modal__close"
             aria-label="Закрыть"
             @click="close"
           >
             ✕
-          </button>
+          </BaseButton>
         </header>
 
         <div class="modal__body">
