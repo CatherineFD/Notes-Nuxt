@@ -12,7 +12,7 @@ const editorStore = useNoteEditorStore();
 const handleSave = async (note: Note) => {
   await notesStore.saveNote(note);
   
-  navigateTo('/')
+  navigateTo(`/notes/${note.id}`);
 }
 
 const handleCancel = () => {

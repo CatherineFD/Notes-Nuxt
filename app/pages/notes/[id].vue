@@ -52,7 +52,6 @@ onMounted(async () => {
 const handleSave = async (note: Note) => {
   try {
     await notesStore.saveNote(note)
-    navigateTo('/')
   } catch (error) {
     console.error('Ошибка при сохранении заметки:', error)
   }

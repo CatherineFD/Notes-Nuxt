@@ -1,5 +1,5 @@
-<!-- app/features/noteEditorFeature/NoteEditorFeature.vue -->
 <script setup lang="ts">
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
 import { useNoteEditorStore } from './store/useNoteEditorStore'
 import { 
   AddTodoCommand, 
@@ -24,7 +24,6 @@ const props = defineProps<{
 const editorStore = useNoteEditorStore()
 
 const localTitle = ref(editorStore.draft?.title ?? '')
-
 const showCancelModal = ref(false)
 const showDeleteModal = ref(false)
 
@@ -36,12 +35,20 @@ watch(
 const hasUnsavedChanges = computed(() => editorStore.canUndo)
 
 let titleSnapshot = localTitle.value
+
 const commitTitle = () => {
   if (!editorStore.draft) return
   const current = localTitle.value.trim()
   if (current !== titleSnapshot) {
     editorStore.executeCommand(new ChangeTitleCommand(titleSnapshot, current))
     titleSnapshot = current
+  }
+}
+
+const syncTitleState = () => {
+  if (editorStore.draft) {
+    titleSnapshot = editorStore.draft.title
+    localTitle.value = titleSnapshot
   }
 }
 
@@ -121,19 +128,14 @@ const confirmDelete = async () => {
 const handleUndo = () => {
   commitTitle()
   editorStore.undo()
-  if (editorStore.draft) {
-    titleSnapshot = editorStore.draft.title
-  }
+  syncTitleState()
 }
 
 const handleRedo = () => {
   commitTitle()
   editorStore.redo()
-  if (editorStore.draft) {
-    titleSnapshot = editorStore.draft.title
-  }
+  syncTitleState()
 }
-
 
 function handleGlobalKeydown(e: KeyboardEvent) {
   const isCtrl = e.ctrlKey || e.metaKey
@@ -141,29 +143,19 @@ function handleGlobalKeydown(e: KeyboardEvent) {
 
   const key = e.key.toLowerCase()
 
-  const target = e.target as HTMLElement
-  const isTextInput =
-    target.tagName === 'INPUT' ||
-    target.tagName === 'TEXTAREA' ||
-    target.isContentEditable === true
-
-  if (e.shiftKey && key === 'z') {
-    e.preventDefault()
+  if ((e.shiftKey && key === 'z') || key === 'y') {
+    e.preventDefault() 
+    commitTitle()     
     editorStore.redo()
-    if (editorStore.draft) {
-      titleSnapshot = editorStore.draft.title
-    }
+    syncTitleState()   
     return
   }
 
-  if (!e.shiftKey && key === 'z') {
-    if (isTextInput) return
-
+  if (key === 'z') {
     e.preventDefault()
+    commitTitle()
     editorStore.undo()
-    if (editorStore.draft) {
-      titleSnapshot = editorStore.draft.title
-    }
+    syncTitleState() 
   }
 }
 
@@ -174,7 +166,6 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('keydown', handleGlobalKeydown)
 })
-
 </script>
 
 <template>
@@ -182,7 +173,6 @@ onUnmounted(() => {
     <div class="note-editor__header">
       <BaseInput
         v-model="localTitle"
-        label="Название заметки"
         placeholder="Введите название"
         required
         @blur="commitTitle"

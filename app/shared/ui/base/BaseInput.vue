@@ -35,22 +35,24 @@ const errorId = `${inputId}-error`
   <div class="base-input">
     <label class="base-input__label" :for="inputId">
       {{ label }}
-      <span v-if="required" class="base-input__required">*</span>
     </label>
 
-    <input
-      :id="inputId"
-      v-model="model"
-      class="base-input__field"
-      :class="{ 'base-input__field--error': error }"
-      :type="type"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :required="required"
-      :aria-invalid="Boolean(error)"
-      :aria-describedby="error ? errorId : undefined"
-      @blur="$emit('blur', $event)"
-    />
+    <div class="base-input__container">
+      <input
+        :id="inputId"
+        v-model="model"
+        class="base-input__field"
+        :class="{ 'base-input__field--error': error }"
+        :type="type"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :required="required"
+        :aria-invalid="Boolean(error)"
+        :aria-describedby="error ? errorId : undefined"
+        @blur="$emit('blur', $event)"
+      />
+      <span v-if="required && !label" class="base-input__required">*</span>
+    </div>
 
     <p
       v-if="error"
@@ -77,6 +79,11 @@ const errorId = `${inputId}-error`
 
   &__required {
     color: $color-danger;
+  }
+
+  &__container {
+    display: flex;
+    gap: 5px;
   }
 
   &__field {
