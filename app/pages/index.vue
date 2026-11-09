@@ -41,7 +41,6 @@ const confirmDelete = async () => {
   }
 }
 
-// Отмена удаления
 const cancelDelete = () => {
   isDeleteModalOpen.value = false
   noteToDelete.value = null

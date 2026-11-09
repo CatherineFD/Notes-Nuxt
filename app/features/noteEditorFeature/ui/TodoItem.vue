@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
+import { debounce } from '~/shared/lib/utils/debounce' 
 import type { Todo } from '~/entities/note/model/types'
 import BaseCheckBox from '~/shared/ui/base/BaseCheckBox.vue'
 import BaseInput from '~/shared/ui/input/BaseInput.vue'
@@ -27,13 +28,25 @@ watch(
   { immediate: true }
 )
 
-const handleBlur = () => {
-  const trimmed = localText.value.trim()
-
+function commitText(value: string) {
+  const trimmed = value.trim()
   if (trimmed !== props.todo.description) {
     emit('commitText', props.todo.id, trimmed)
   }
 }
+
+const debouncedCommit = debounce((value: string) => {
+  commitText(value)
+}, 800)
+
+function handleInput() {
+  debouncedCommit(localText.value)
+}
+
+function handleBlur() {
+  commitText(localText.value)
+}
+
 </script>
 
 <template>
@@ -47,6 +60,7 @@ const handleBlur = () => {
       v-model="localText"
       placeholder="Что нужно сделать?"
       @blur="handleBlur"
+      @input="handleInput"
       class="note-editor__todo-input"
     />
 

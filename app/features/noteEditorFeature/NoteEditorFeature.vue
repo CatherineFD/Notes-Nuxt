@@ -13,20 +13,27 @@ import type { Note, Todo } from '~/entities/note/model/types'
 import BaseInput from '~/shared/ui/input/BaseInput.vue'
 import BaseButton from '~/shared/ui/base/BaseButton.vue'
 import TodoList from './ui/TodoList.vue'
+import BaseModal from '~/shared/ui/base/BaseModal.vue'
 
 const props = defineProps<{
   onSave: (note: Note) => Promise<void> | void
   onCancel: () => void
+  onDelete?: (noteId: string) => Promise<void> | void
 }>()
 
 const editorStore = useNoteEditorStore()
 
 const localTitle = ref(editorStore.draft?.title ?? '')
 
+const showCancelModal = ref(false)
+const showDeleteModal = ref(false)
+
 watch(
   () => editorStore.draft?.title,
   (newVal) => { if (newVal !== undefined) localTitle.value = newVal }
 )
+
+const hasUnsavedChanges = computed(() => editorStore.canUndo)
 
 let titleSnapshot = localTitle.value
 const commitTitle = () => {
@@ -73,7 +80,6 @@ const handleSave = async () => {
 
   try {
     await props.onSave(editorStore.draft)
-    
     editorStore.cleanup()
   } catch (error) {
     console.error('Ошибка при сохранении заметки:', error)
@@ -81,21 +87,128 @@ const handleSave = async () => {
 }
 
 const handleCancel = () => {
+  if (!hasUnsavedChanges.value) {
+    editorStore.cleanup()
+    props.onCancel()
+    return
+  }
+  showCancelModal.value = true
+}
+
+const confirmCancel = () => {
+  showCancelModal.value = false
   editorStore.cleanup()
-  
   props.onCancel()
 }
+
+const handleDelete = () => {
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (!editorStore.draft || !props.onDelete) return
+
+  try {
+    await props.onDelete(editorStore.draft.id)
+    editorStore.cleanup()
+  } catch (error) {
+    console.error('Ошибка при удалении заметки:', error)
+  } finally {
+    showDeleteModal.value = false
+  }
+}
+
+const handleUndo = () => {
+  commitTitle()
+  editorStore.undo()
+  if (editorStore.draft) {
+    titleSnapshot = editorStore.draft.title
+  }
+}
+
+const handleRedo = () => {
+  commitTitle()
+  editorStore.redo()
+  if (editorStore.draft) {
+    titleSnapshot = editorStore.draft.title
+  }
+}
+
+
+function handleGlobalKeydown(e: KeyboardEvent) {
+  const isCtrl = e.ctrlKey || e.metaKey
+  if (!isCtrl) return
+
+  const key = e.key.toLowerCase()
+
+  const target = e.target as HTMLElement
+  const isTextInput =
+    target.tagName === 'INPUT' ||
+    target.tagName === 'TEXTAREA' ||
+    target.isContentEditable === true
+
+  if (e.shiftKey && key === 'z') {
+    e.preventDefault()
+    editorStore.redo()
+    if (editorStore.draft) {
+      titleSnapshot = editorStore.draft.title
+    }
+    return
+  }
+
+  if (!e.shiftKey && key === 'z') {
+    if (isTextInput) return
+
+    e.preventDefault()
+    editorStore.undo()
+    if (editorStore.draft) {
+      titleSnapshot = editorStore.draft.title
+    }
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleGlobalKeydown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleGlobalKeydown)
+})
+
 </script>
 
 <template>
   <form v-if="editorStore.draft" class="note-editor" @submit.prevent="handleSave">
-    <BaseInput
-      v-model="localTitle"
-      label="Название заметки"
-      placeholder="Введите название"
-      required
-      @blur="commitTitle"
-    />
+    <div class="note-editor__header">
+      <BaseInput
+        v-model="localTitle"
+        label="Название заметки"
+        placeholder="Введите название"
+        required
+        @blur="commitTitle"
+      />
+
+      <div class="note-editor__history">
+        <BaseButton
+          type="button"
+          variant="secondary"
+          :disabled="!editorStore.canUndo"
+          title="Отменить (Ctrl+Z)"
+          @click="handleUndo"
+        >
+          ↶
+        </BaseButton>
+        <BaseButton
+          type="button"
+          variant="secondary"
+          :disabled="!editorStore.canRedo"
+          title="Повторить (Ctrl+Shift+Z)"
+          @click="handleRedo"
+        >
+          ↷
+        </BaseButton>
+      </div>
+    </div>
 
     <TodoList
       :todos="editorStore.draft.todoList"
@@ -112,21 +225,78 @@ const handleCancel = () => {
       <BaseButton type="button" variant="secondary" @click="handleCancel">
         Отмена
       </BaseButton>
+      <BaseButton 
+        v-if="onDelete" 
+        type="button" 
+        variant="danger" 
+        @click="handleDelete"
+      >
+        Удалить
+      </BaseButton>
     </div>
   </form>
+
+  <BaseModal 
+    v-model="showCancelModal"
+    title="Отменить редактирование?"
+  >
+    <p>У вас есть несохранённые изменения. Вы уверены, что хотите выйти?</p>
+    <template #footer>
+      <BaseButton variant="secondary" @click="showCancelModal = false">
+        Продолжить редактирование
+      </BaseButton>
+      <BaseButton variant="danger" @click="confirmCancel">
+        Да, отменить
+      </BaseButton>
+    </template>
+  </BaseModal>
+
+  <BaseModal 
+    v-model="showDeleteModal"
+    title="Удалить заметку?"
+  >
+    <p>
+      Вы уверены, что хотите удалить заметку 
+      <strong>"{{ editorStore.draft?.title || 'Без названия' }}"</strong>? 
+      Это действие нельзя отменить.
+    </p>
+    <template #footer>
+      <BaseButton variant="secondary" @click="showDeleteModal = false">
+        Отмена
+      </BaseButton>
+      <BaseButton variant="danger" @click="confirmDelete">
+        Удалить
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .note-editor {
   display: grid;
   gap: 24px;
   max-width: 800px;
-  margin: 0 auto;
-}
-.note-editor__actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 24px;
+  margin: 12px auto 0;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  &__history {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
 }
 </style>

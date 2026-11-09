@@ -23,6 +23,10 @@ withDefaults(
   },
 )
 
+defineEmits<{
+  (e: 'blur', event: FocusEvent): void
+}>()
+
 const inputId = useId()
 const errorId = `${inputId}-error`
 </script>
@@ -45,6 +49,7 @@ const errorId = `${inputId}-error`
       :required="required"
       :aria-invalid="Boolean(error)"
       :aria-describedby="error ? errorId : undefined"
+      @blur="$emit('blur', $event)"
     />
 
     <p

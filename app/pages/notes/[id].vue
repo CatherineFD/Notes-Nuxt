@@ -77,6 +77,14 @@ const discardDraft = () => {
   }
   showRestoreModal.value = false
 }
+
+const handleDelete = async (id: string) => {
+  notesStore.deleteNote(id)
+  
+  removeDraftFromLS(id)
+  
+  navigateTo('/')
+}
 </script>
 
 <template>
@@ -90,6 +98,7 @@ const discardDraft = () => {
       <NoteEditorFeature 
         :on-save="handleSave" 
         :on-cancel="handleCancel" 
+        :on-delete="handleDelete"
       />
     </template>
 
@@ -111,7 +120,7 @@ const discardDraft = () => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .page-container {
   max-width: 800px;
   margin: 2rem auto;
