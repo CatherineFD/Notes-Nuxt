@@ -28,14 +28,15 @@ let originalNote: Note | undefined
 onMounted(async () => {
   await notesStore.loadNotes()
   
-  const foundNote = notesStore.notes.find((n) => n.id === noteId)
+  const foundNote = notesStore.getNoteById(noteId);
   
+  //Todo обработка ошибки
   if (!foundNote) {
     navigateTo('/')
     return
   }
 
-  originalNote = JSON.parse(JSON.stringify(foundNote)) as Note
+  originalNote = foundNote;
   
   const draft = loadDraftFromLS(noteId)
   
@@ -43,15 +44,17 @@ onMounted(async () => {
     pendingDraft.value = draft
     showRestoreModal.value = true
   } else {
-    editorStore.draft = JSON.parse(JSON.stringify(foundNote)) as Note
+    editorStore.draft = foundNote;
   }
   
   isReady.value = true
 })
 
 const handleSave = async (note: Note) => {
+  console.log('handleSave');
+  console.log(editorStore.draft);
   try {
-    await notesStore.saveNote(note)
+    await notesStore.upsertNote(note)
   } catch (error) {
     console.error('Ошибка при сохранении заметки:', error)
   }

@@ -1,3 +1,5 @@
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import type { Note } from "~/entities/note/model/types";
 import type { NoteCommand } from "../model/commands";
 import { removeDraftFromLS, saveDraftToLS } from "../lib/draftPersistence";
@@ -48,14 +50,6 @@ export const useNoteEditorStore = defineStore('note-editor', () => {
     redoStack.value = [];
   }
 
-  function cancel() {
-    if (!draft.value) return
-
-    removeDraftFromLS(draft.value.id)
-
-    reset()
-  }
-
   function clearDraftStorage() {
     if (draft.value) {
       removeDraftFromLS(draft.value.id)
@@ -77,7 +71,6 @@ export const useNoteEditorStore = defineStore('note-editor', () => {
     undo,
     redo,
     reset,
-    cancel,
     clearDraftStorage,
     cleanup,
   };

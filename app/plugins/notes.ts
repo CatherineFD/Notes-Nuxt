@@ -1,5 +1,5 @@
 import { LocalStorageNotesRepository } from "~/entities/note/repositories/LocalStorageNotesRepository"
-import { NotesService } from "~/entities/note/services/NotesSerrvice"
+import { NotesService } from "~/entities/note/services/NotesService"
 import { createNotesStore } from "~/entities/note/store/NotesStore"
 
 export default defineNuxtPlugin(() => {

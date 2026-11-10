@@ -87,7 +87,7 @@ const handleSave = async () => {
 
   try {
     await props.onSave(editorStore.draft)
-    editorStore.cleanup()
+    editorStore.clearDraftStorage()
   } catch (error) {
     console.error('Ошибка при сохранении заметки:', error)
   }
