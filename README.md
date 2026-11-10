@@ -59,3 +59,54 @@ http://localhost:3000
 npm run build
 npm run preview
 ```
+## Запуск через Docker
+
+### Требования
+
+- Docker Engine 24+
+- Docker Compose v2
+
+Проверить, что Docker доступен:
+
+```bash
+docker version
+docker compose version
+```
+
+### Сборка и запуск
+
+Из корня репозитория выполните:
+
+```bash
+docker compose up --build
+```
+
+При первом запуске Docker соберёт образ приложения. После успешного старта откройте:
+
+```txt
+http://localhost:3000
+```
+
+### Запуск в фоновом режиме
+
+```bash
+docker compose up -d --build
+```
+
+### Просмотр логов
+
+```bash
+docker compose logs -f
+```
+
+### Остановка приложения
+
+```bash
+docker compose down
+```
+
+### Остановка с удалением volumes
+
+```bash
+docker compose down -v
+```
