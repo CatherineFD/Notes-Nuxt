@@ -1,31 +1,12 @@
 <script setup lang="ts">
 import NoteEditorFeature from '~/features/noteEditorFeature/NoteEditorFeature.vue';
-import type { Note } from '~/entities/note/model/types';
-import { useNoteEditorStore } from '~/features/noteEditorFeature/store/useNoteEditorStore';
 import ButtonLink from '~/shared/ui/button/ButtonLink.vue';
+import { useNoteCreatorPage } from './lib/useNoteCreatorPage';
 
-const useNotesStore = useNuxtApp().$notesStore;
-const notesStore = useNotesStore();
-
-const editorStore = useNoteEditorStore();
-
-const handleSave = async (note: Note) => {
-  await notesStore.saveNote(note);
-  
-  navigateTo(`/notes/${note.id}`);
-}
-
-const handleCancel = () => {
-  navigateTo('/')
-}
-
-onMounted(() => {
-  editorStore.draft = {
-    id: crypto.randomUUID(),
-    title: '',
-    todoList: [],
-  }
-})
+const {
+  handleSave,
+  handleCancel,
+} = useNoteCreatorPage();
 </script>
 
 <template>

@@ -1,178 +1,65 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
-import { useNoteEditorStore } from './store/useNoteEditorStore'
-import { 
-  AddTodoCommand, 
-  DeleteTodoCommand, 
-  ToggleTodoCommand, 
-  ChangeTodoTextCommand,
-  ChangeTitleCommand 
-} from './model/commands'
-import type { Note, Todo } from '~/entities/note/model/types'
-
-import BaseInput from '~/shared/ui/base/BaseInput.vue'
-import BaseButton from '~/shared/ui/button/BaseButton.vue'
-import TodoList from './ui/TodoList.vue'
-import BaseModal from '~/shared/ui/base/BaseModal.vue'
+import { useNoteEditorStore } from '~/features/noteEditorFeature/store/useNoteEditorStore';
+import type { Note } from '~/entities/note/model/types';
+import BaseInput from '~/shared/ui/base/BaseInput.vue';
+import BaseButton from '~/shared/ui/button/BaseButton.vue';
+import TodoList from '~/features/noteEditorFeature/ui/TodoList.vue';
+import NoteDeleteModal from '~/entities/note/ui/NoteDeleteModal.vue';
+import NoteCancelEditModal from '~/features/noteEditorFeature/ui/NoteCancelEditModal.vue';
+import { useNoteEditorActions } from '~/features/noteEditorFeature/composables/useNoteEditorActions.ts';
+import { useNoteHistory } from '~/features/noteEditorFeature/composables/useNoteHistory.ts';
+import { useNoteTitle } from '~/features/noteEditorFeature/composables/useNoteTitle.ts';
+import NoteEditorActions from '~/features/noteEditorFeature/ui/NoteEditorActions.vue';
 
 const props = defineProps<{
   onSave: (note: Note) => Promise<void> | void
   onCancel: () => void
   onDelete?: (noteId: string) => Promise<void> | void
-}>()
+}>();
 
-const editorStore = useNoteEditorStore()
+const editorStore = useNoteEditorStore();
 
-const localTitle = ref(editorStore.draft?.title ?? '')
-const showCancelModal = ref(false)
-const showDeleteModal = ref(false)
+const { title, commitTitle, syncTitleState } = useNoteTitle();
 
-watch(
-  () => editorStore.draft?.title,
-  (newVal) => { if (newVal !== undefined) localTitle.value = newVal }
-)
+const {
+  canUndo,
+  canRedo,
+  undo,
+  redo,
+} = useNoteHistory({
+  commitTitle,
+  syncTitleState,
+});
 
-const hasUnsavedChanges = computed(() => editorStore.canUndo)
-
-let titleSnapshot = localTitle.value
-
-const commitTitle = () => {
-  if (!editorStore.draft) return
-  const current = localTitle.value.trim()
-  if (current !== titleSnapshot) {
-    editorStore.executeCommand(new ChangeTitleCommand(titleSnapshot, current))
-    titleSnapshot = current
-  }
-}
-
-const syncTitleState = () => {
-  if (editorStore.draft) {
-    titleSnapshot = editorStore.draft.title
-    localTitle.value = titleSnapshot
-  }
-}
-
-const handleAddTodo = () => {
-  const newTodo: Todo = {
-    id: crypto.randomUUID(),
-    isComplete: false,
-    description: '',
-  }
-  editorStore.executeCommand(new AddTodoCommand(newTodo))
-}
-
-const handleRemoveTodo = (todo: Todo) => {
-  editorStore.executeCommand(new DeleteTodoCommand(todo))
-}
-
-const handleToggleTodo = (todo: Todo) => {
-  editorStore.executeCommand(
-    new ToggleTodoCommand(todo.id, todo.isComplete, !todo.isComplete)
-  )
-}
-
-const handleCommitTodoText = (id: string, newText: string) => {
-  if (!editorStore.draft) return
-  const todo = editorStore.draft.todoList.find(t => t.id === id)
-  if (!todo) return
-  
-  editorStore.executeCommand(
-    new ChangeTodoTextCommand(id, todo.description, newText)
-  )
-}
-
-const handleSave = async () => {
-  commitTitle()
-  if (!editorStore.draft || !editorStore.draft.title.trim()) return
-
-  try {
-    await props.onSave(editorStore.draft)
-    editorStore.clearDraftStorage()
-  } catch (error) {
-    console.error('Ошибка при сохранении заметки:', error)
-  }
-}
-
-const handleCancel = () => {
-  if (!hasUnsavedChanges.value) {
-    editorStore.cleanup()
-    props.onCancel()
-    return
-  }
-  showCancelModal.value = true
-}
-
-const confirmCancel = () => {
-  showCancelModal.value = false
-  editorStore.cleanup()
-  props.onCancel()
-}
-
-const handleDelete = () => {
-  showDeleteModal.value = true
-}
-
-const confirmDelete = async () => {
-  if (!editorStore.draft || !props.onDelete) return
-
-  try {
-    await props.onDelete(editorStore.draft.id)
-    editorStore.cleanup()
-  } catch (error) {
-    console.error('Ошибка при удалении заметки:', error)
-  } finally {
-    showDeleteModal.value = false
-  }
-}
-
-const handleUndo = () => {
-  commitTitle()
-  editorStore.undo()
-  syncTitleState()
-}
-
-const handleRedo = () => {
-  commitTitle()
-  editorStore.redo()
-  syncTitleState()
-}
-
-function handleGlobalKeydown(e: KeyboardEvent) {
-  const isCtrl = e.ctrlKey || e.metaKey
-  if (!isCtrl) return
-
-  const key = e.key.toLowerCase()
-
-  if ((e.shiftKey && key === 'z') || key === 'y') {
-    e.preventDefault() 
-    commitTitle()     
-    editorStore.redo()
-    syncTitleState()   
-    return
-  }
-
-  if (key === 'z') {
-    e.preventDefault()
-    commitTitle()
-    editorStore.undo()
-    syncTitleState() 
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('keydown', handleGlobalKeydown)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('keydown', handleGlobalKeydown)
-})
+const {
+  isShowCancelModal,
+  isShowDeleteModal,
+  addTodo,
+  removeTodo,
+  toggleTodo,
+  commitTodoText,
+  save,
+  cancel,
+  confirmCancel,
+  openDeleteModal,
+  confirmDelete,
+} = useNoteEditorActions({
+  onSave: props.onSave,
+  onCancel: props.onCancel,
+  onDelete: props.onDelete,
+  commitTitle,
+});
 </script>
 
 <template>
-  <form v-if="editorStore.draft" class="note-editor" @submit.prevent="handleSave">
+  <form
+    v-if="editorStore.draft"
+    class="note-editor"
+    @submit.prevent="save"
+  >
     <div class="note-editor__header">
       <BaseInput
-        v-model="localTitle"
+        v-model="title"
         placeholder="Введите название"
         required
         @blur="commitTitle"
@@ -182,18 +69,19 @@ onUnmounted(() => {
         <BaseButton
           type="button"
           variant="secondary"
-          :disabled="!editorStore.canUndo"
+          :disabled="!canUndo"
           title="Отменить (Ctrl+Z)"
-          @click="handleUndo"
+          @click="undo"
         >
           ↶
         </BaseButton>
+
         <BaseButton
           type="button"
           variant="secondary"
-          :disabled="!editorStore.canRedo"
+          :disabled="!canRedo"
           title="Повторить (Ctrl+Shift+Z)"
-          @click="handleRedo"
+          @click="redo"
         >
           ↷
         </BaseButton>
@@ -202,63 +90,31 @@ onUnmounted(() => {
 
     <TodoList
       :todos="editorStore.draft.todoList"
-      @add="handleAddTodo"
-      @remove="handleRemoveTodo"
-      @toggle="handleToggleTodo"
-      @commit-text="handleCommitTodoText"
+      @add="addTodo"
+      @remove="removeTodo"
+      @toggle="toggleTodo"
+      @commit-text="commitTodoText"
     />
 
-    <div class="note-editor__actions">
-      <BaseButton type="submit" :disabled="!localTitle.trim()">
-        Сохранить
-      </BaseButton>
-      <BaseButton type="button" variant="secondary" @click="handleCancel">
-        Отмена
-      </BaseButton>
-      <BaseButton 
-        v-if="onDelete" 
-        type="button" 
-        variant="danger" 
-        @click="handleDelete"
-      >
-        Удалить
-      </BaseButton>
-    </div>
+    <NoteEditorActions
+      :is-save-disabled="!title.trim()"
+      :can-delete="Boolean(props.onDelete)"
+      @save="save"
+      @cancel="cancel"
+      @delete="openDeleteModal"
+    />
   </form>
 
-  <BaseModal 
-    v-model="showCancelModal"
-    title="Отменить редактирование?"
-  >
-    <p>У вас есть несохранённые изменения. Вы уверены, что хотите выйти?</p>
-    <template #footer>
-      <BaseButton variant="secondary" @click="showCancelModal = false">
-        Продолжить редактирование
-      </BaseButton>
-      <BaseButton variant="danger" @click="confirmCancel">
-        Да, отменить
-      </BaseButton>
-    </template>
-  </BaseModal>
+  <NoteCancelEditModal
+    v-model="isShowCancelModal"
+    @confirm="confirmCancel"
+  />
 
-  <BaseModal 
-    v-model="showDeleteModal"
-    title="Удалить заметку?"
-  >
-    <p>
-      Вы уверены, что хотите удалить заметку 
-      <strong>"{{ editorStore.draft?.title || 'Без названия' }}"</strong>? 
-      Это действие нельзя отменить.
-    </p>
-    <template #footer>
-      <BaseButton variant="secondary" @click="showDeleteModal = false">
-        Отмена
-      </BaseButton>
-      <BaseButton variant="danger" @click="confirmDelete">
-        Удалить
-      </BaseButton>
-    </template>
-  </BaseModal>
+  <NoteDeleteModal
+    v-model="isShowDeleteModal"
+    :note="editorStore.draft"
+    @confirm="confirmDelete"
+  />
 </template>
 
 <style scoped lang="scss">
@@ -280,13 +136,6 @@ onUnmounted(() => {
     display: flex;
     gap: 0.5rem;
     flex-shrink: 0;
-  }
-
-  &__actions {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    margin-top: 24px;
   }
 }
 </style>

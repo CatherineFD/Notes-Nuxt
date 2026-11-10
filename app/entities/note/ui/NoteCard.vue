@@ -1,7 +1,6 @@
-<!-- app/entities/note/ui/NoteCard.vue -->
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Note } from '../model/types'
+import type { Note } from '~/entities/note/model/types'
 import BaseButton from '~/shared/ui/button/BaseButton.vue'
 
 const props = defineProps<{

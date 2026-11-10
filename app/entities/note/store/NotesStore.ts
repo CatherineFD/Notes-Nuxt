@@ -39,9 +39,9 @@ export function createNotesStore(service: NotesGateway) {
       const index = notes.value.findIndex((item) => item.id === note.id)
 
       if (index === -1) {
-        notes.value.push(structuredClone(note))
+        notes.value.push(Object.assign(note));
       } else {
-        notes.value[index] = structuredClone(note)
+        notes.value[index] = Object.assign(note);
       }
 
       void saveNotes()

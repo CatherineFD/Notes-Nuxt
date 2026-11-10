@@ -33,7 +33,7 @@ const errorId = `${inputId}-error`
 
 <template>
   <div class="base-input">
-    <label class="base-input__label" :for="inputId">
+    <label v-if="label" class="base-input__label" :for="inputId">
       {{ label }}
     </label>
 
@@ -87,6 +87,7 @@ const errorId = `${inputId}-error`
   }
 
   &__field {
+    width: 100%;
     padding: 0.625rem 0.75rem;
     border: 1px solid $color-border;
     border-radius: 0.5rem;

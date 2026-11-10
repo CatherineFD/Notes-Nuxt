@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onBeforeUnmount } from 'vue'
+import { ref, watch } from 'vue'
 import { debounce } from '~/shared/lib/utils/debounce' 
 import type { Todo } from '~/entities/note/model/types'
 import BaseCheckBox from '~/shared/ui/base/BaseCheckBox.vue'
@@ -52,6 +52,7 @@ function handleBlur() {
 <template>
   <div class="note-editor__todo">
     <BaseCheckBox
+      :disabled="localText.length === 0"
       :model-value="todo.isComplete"
       @update:model-value="emit('toggle', todo)"
     />

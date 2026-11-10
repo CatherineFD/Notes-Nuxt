@@ -1,50 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import { navigateTo } from '#app'
-import type { Note } from '~/entities/note/model/types'
-
 import NoteCard from '~/entities/note/ui/NoteCard.vue'
 import BaseList from '~/shared/ui/base/BaseList.vue'
 import BaseButton from '~/shared/ui/button/BaseButton.vue'
-import BaseModal from '~/shared/ui/base/BaseModal.vue'
+import { useNotesListPage } from './lib/useNotesListPage'
+import NoteDeleteModal from '~/entities/note/ui/NoteDeleteModal.vue'
 
-const useNotesStore = useNuxtApp().$notesStore;
-const notesStore = useNotesStore();
-const { notes } = storeToRefs(notesStore)
+const {
+  notes,
+  isDeleteModalOpen,
+  noteToDelete,
+  handleEdit,
+  requestDelete,
+  confirmDelete,
+  cancelDelete,
+} = useNotesListPage();
 
-const isDeleteModalOpen = ref(false)
-const noteToDelete = ref<Note | null>(null)
-
-onMounted(async () => {
-  await notesStore.loadNotes()
-})
-
-const handleEdit = (note: Note) => {
-  navigateTo(`/notes/${note.id}`)
-}
-
-const requestDelete = (note: Note) => {
-  noteToDelete.value = note
-  isDeleteModalOpen.value = true
-}
-
-const confirmDelete = async () => {
-  if (!noteToDelete.value) return
-  
-  try {
-    await notesStore.deleteNote(noteToDelete.value.id)
-  } catch (error) {
-    console.error('Ошибка при удалении заметки:', error)
-  } finally {
-    isDeleteModalOpen.value = false
-    noteToDelete.value = null
-  }
-}
-
-const cancelDelete = () => {
-  isDeleteModalOpen.value = false
-  noteToDelete.value = null
-}
 </script>
 
 <template>
@@ -75,25 +46,11 @@ const cancelDelete = () => {
       </template>
     </BaseList>
 
-    <BaseModal 
-      v-model="isDeleteModalOpen" 
-      title="Удалить заметку?"
-      @close="cancelDelete"
-    >
-      <p>
-        Вы уверены, что хотите удалить заметку 
-        <strong>"{{ noteToDelete?.title || 'Без названия' }}"</strong>? 
-        Это действие нельзя отменить.
-      </p>
-      <template #footer>
-        <BaseButton variant="secondary" @click="cancelDelete">
-          Отмена
-        </BaseButton>
-        <BaseButton variant="danger" @click="confirmDelete">
-          Удалить
-        </BaseButton>
-      </template>
-    </BaseModal>
+    <NoteDeleteModal
+      v-model="isDeleteModalOpen"
+      :note="noteToDelete"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 

@@ -1,110 +1,40 @@
-<!-- app/pages/notes/[id].vue -->
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRoute, navigateTo } from '#app'
-import { useNoteEditorStore } from '~/features/noteEditorFeature/store/useNoteEditorStore'
-import { loadDraftFromLS, removeDraftFromLS } from '~/features/noteEditorFeature/lib/draftPersistence'
-import type { Note } from '~/entities/note/model/types'
-
 import NoteEditorFeature from '~/features/noteEditorFeature/NoteEditorFeature.vue'
 import BaseModal from '~/shared/ui/base/BaseModal.vue'
 import BaseButton from '~/shared/ui/button/BaseButton.vue'
 import ButtonLink from '~/shared/ui/button/ButtonLink.vue'
+import { useNoteEditorPage } from './lib/useNoteEditorPage'
 
-const route = useRoute()
-const noteId = route.params.id as string
+const {
+  notesStore,
+  editorStore,
+  showRestoreModal,
+  handleSave,
+  handleCancel,
+  handleDelete,
+  restoreDraft,
+  discardDraft,
+} = useNoteEditorPage();
 
-const useNotesStore = useNuxtApp().$notesStore;
-const notesStore = useNotesStore();
-const editorStore = useNoteEditorStore()
-
-const showRestoreModal = ref(false)
-const pendingDraft = ref<Note | null>(null)
-
-const isReady = ref(false)
-
-let originalNote: Note | undefined
-
-onMounted(async () => {
-  await notesStore.loadNotes()
-  
-  const foundNote = notesStore.getNoteById(noteId);
-  
-  //Todo обработка ошибки
-  if (!foundNote) {
-    navigateTo('/')
-    return
-  }
-
-  originalNote = foundNote;
-  
-  const draft = loadDraftFromLS(noteId)
-  
-  if (draft) {
-    pendingDraft.value = draft
-    showRestoreModal.value = true
-  } else {
-    editorStore.draft = foundNote;
-  }
-  
-  isReady.value = true
-})
-
-const handleSave = async (note: Note) => {
-  console.log('handleSave');
-  console.log(editorStore.draft);
-  try {
-    await notesStore.upsertNote(note)
-  } catch (error) {
-    console.error('Ошибка при сохранении заметки:', error)
-  }
-}
-
-const handleCancel = () => {
-  navigateTo('/')
-}
-
-const restoreDraft = () => {
-  if (pendingDraft.value) {
-    editorStore.draft = pendingDraft.value
-  }
-  showRestoreModal.value = false
-}
-
-const discardDraft = () => {
-  removeDraftFromLS(noteId)
-  
-  if (originalNote) {
-    editorStore.draft = structuredClone(originalNote)
-  }
-  showRestoreModal.value = false
-}
-
-const handleDelete = async (id: string) => {
-  notesStore.deleteNote(id)
-  
-  removeDraftFromLS(id)
-  
-  navigateTo('/')
-}
 </script>
 
 <template>
   <div class="page-container">
-    <ButtonLink
-      to="/"
-    >
-      Назад
-    </ButtonLink>
-    <template v-if="isReady && editorStore.draft">
-      <NoteEditorFeature 
-        :on-save="handleSave" 
-        :on-cancel="handleCancel" 
+    <ButtonLink to="/">Назад</ButtonLink>
+
+    <div v-if="notesStore.isLoading" class="loading-state">
+      <p>Загрузка заметки...</p>
+    </div>
+
+    <template v-else-if="editorStore.draft">
+      <NoteEditorFeature
+        :on-save="handleSave"
+        :on-cancel="handleCancel"
         :on-delete="handleDelete"
       />
     </template>
 
-    <BaseModal 
+    <BaseModal
       v-model="showRestoreModal"
       title="Восстановить несохранённые изменения?"
       @close="discardDraft"
@@ -127,5 +57,25 @@ const handleDelete = async (id: string) => {
   max-width: 800px;
   margin: 2rem auto;
   padding: 0 1rem;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.error-banner {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--color-danger);
+  border-radius: 0.5rem;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+  text-align: center;
 }
 </style>
