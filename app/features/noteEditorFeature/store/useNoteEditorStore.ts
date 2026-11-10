@@ -45,7 +45,12 @@ export const useNoteEditorStore = defineStore('note-editor', () => {
   }
 
   function reset() {
-    draft.value = null;
+    draft.value = null
+    undoStack.value = [];
+    redoStack.value = [];
+  }
+
+  function clearHistory() {
     undoStack.value = [];
     redoStack.value = [];
   }
@@ -71,6 +76,7 @@ export const useNoteEditorStore = defineStore('note-editor', () => {
     undo,
     redo,
     reset,
+    clearHistory,
     clearDraftStorage,
     cleanup,
   };

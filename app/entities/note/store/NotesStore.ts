@@ -36,12 +36,17 @@ export function createNotesStore(service: NotesGateway) {
     }
 
     function upsertNote(note: Note) {
-      const index = notes.value.findIndex((item) => item.id === note.id)
+      const cleanNote = {
+        ...note,
+        todoList: note.todoList.filter((todo) => todo.description.trim() !== '')
+      }
+
+      const index = notes.value.findIndex((item) => item.id === cleanNote.id)
 
       if (index === -1) {
-        notes.value.push(Object.assign(note));
+        notes.value.push(cleanNote)
       } else {
-        notes.value[index] = Object.assign(note);
+        notes.value[index] = cleanNote
       }
 
       void saveNotes()

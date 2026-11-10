@@ -72,12 +72,14 @@ export function useNoteEditorActions({
   }
 
   const cancel = () => {
+    commitTitle();
+
     if (!editorStore.canUndo) {
-      cleanup()
-      return
+      cleanup();
+      return;
     }
 
-    isShowCancelModal.value = true
+    isShowCancelModal.value = true;
   }
 
   const confirmCancel = () => {

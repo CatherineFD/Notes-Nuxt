@@ -2,6 +2,7 @@
 import NoteEditorFeature from '~/features/noteEditorFeature/NoteEditorFeature.vue';
 import ButtonLink from '~/shared/ui/button/ButtonLink.vue';
 import { useNoteCreatorPage } from './lib/useNoteCreatorPage';
+import IconArrow from '~/shared/ui/icon/IconArrow.vue';
 
 const {
   handleSave,
@@ -14,13 +15,12 @@ const {
     <ButtonLink
       to="/"
     >
-      Назад
-    </ButtonLink>
-    <h1>Новая заметка</h1>
-      <NoteEditorFeature 
-        :on-save="handleSave" 
-        :on-cancel="handleCancel" 
-      />
+      <IconArrow direction="left"/>
+    </ButtonLink> 
+    <NoteEditorFeature 
+      :on-save="handleSave" 
+      :on-cancel="handleCancel" 
+    />
   </main>
 </template>
 

@@ -27,7 +27,6 @@ const {
   undo,
   redo,
 } = useNoteHistory({
-  commitTitle,
   syncTitleState,
 });
 

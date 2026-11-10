@@ -24,38 +24,42 @@ export function useNoteEditorPage() {
 
         if (!foundNote) {
             showError(
-            createError({
-                statusCode: 404,
-                statusMessage: 'Заметка не найдена',
-                message: 'Такой заметки не существует или она была удалена.',
-                fatal: true,
-            }),
-            )
+                createError({
+                    statusCode: 404,
+                    statusMessage: 'Заметка не найдена',
+                    message: 'Такой заметки не существует или она была удалена.',
+                    fatal: true,
+                }),
+            );
 
-            return
+            return;
         }
 
-        originalNote = foundNote
+        originalNote = foundNote;
 
-        const draft = loadDraftFromLS(noteId)
+        const draft = loadDraftFromLS(noteId);
 
         if (draft) {
-            pendingDraft.value = draft
-            showRestoreModal.value = true
+            pendingDraft.value = draft;
+            showRestoreModal.value = true;
         } else {
-            editorStore.draft = Object.assign(foundNote);
+            editorStore.draft = JSON.parse(JSON.stringify(foundNote));
         }
     };
 
   const handleSave = async (note: Note) => {
     try {
-      await notesStore.upsertNote(note);
-      editorStore.cleanup();
-      navigateTo('/');
+      await notesStore.upsertNote(note)
+
+      removeDraftFromLS(noteId)
+
+      originalNote = JSON.parse(JSON.stringify(note));
+
+      editorStore.clearHistory();
     } catch (error) {
-      console.error('Ошибка при сохранении заметки:', error);
+      console.error('Ошибка при сохранении заметки:', error)
     }
-  };
+  }
 
   const handleCancel = () => {
     navigateTo('/');
@@ -75,22 +79,22 @@ export function useNoteEditorPage() {
 
   const restoreDraft = () => {
     if (pendingDraft.value) {
-      editorStore.draft = JSON.parse(JSON.stringify(pendingDraft.value)) as Note
+      editorStore.draft =  JSON.parse(JSON.stringify(pendingDraft.value));
     }
-    showRestoreModal.value = false
+    showRestoreModal.value = false;
   };
 
   const discardDraft = () => {
-    removeDraftFromLS(noteId)
+    removeDraftFromLS(noteId);
 
     if (originalNote) {
-      editorStore.draft = JSON.parse(JSON.stringify(originalNote)) as Note
+      editorStore.draft =  JSON.parse(JSON.stringify(originalNote));
     }
-    showRestoreModal.value = false
+    showRestoreModal.value = false;
   };
 
   onMounted(() => {
-    initializeEditor()
+    initializeEditor();
   });
 
   return {

@@ -16,7 +16,7 @@ const emit = defineEmits<{
 <template>
   <div class="note-editor-actions">
     <BaseButton
-      type="submit"
+      type="button"
       :disabled="isSaveDisabled"
       @click="emit('save')"
     >

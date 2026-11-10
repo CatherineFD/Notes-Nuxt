@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import NoteEditorFeature from '~/features/noteEditorFeature/NoteEditorFeature.vue'
-import BaseModal from '~/shared/ui/base/BaseModal.vue'
-import BaseButton from '~/shared/ui/button/BaseButton.vue'
-import ButtonLink from '~/shared/ui/button/ButtonLink.vue'
-import { useNoteEditorPage } from './lib/useNoteEditorPage'
+import NoteEditorFeature from '~/features/noteEditorFeature/NoteEditorFeature.vue';
+import BaseModal from '~/shared/ui/base/BaseModal.vue';
+import BaseButton from '~/shared/ui/button/BaseButton.vue';
+import ButtonLink from '~/shared/ui/button/ButtonLink.vue';
+import { useNoteEditorPage } from './lib/useNoteEditorPage';
+import IconArrow from '~/shared/ui/icon/IconArrow.vue';
 
 const {
   notesStore,
@@ -20,13 +21,15 @@ const {
 
 <template>
   <div class="page-container">
-    <ButtonLink to="/">Назад</ButtonLink>
+    <ButtonLink to="/">
+      <IconArrow direction="left"/>
+    </ButtonLink>
 
     <div v-if="notesStore.isLoading" class="loading-state">
       <p>Загрузка заметки...</p>
     </div>
 
-    <template v-else-if="editorStore.draft">
+    <template v-else>
       <NoteEditorFeature
         :on-save="handleSave"
         :on-cancel="handleCancel"

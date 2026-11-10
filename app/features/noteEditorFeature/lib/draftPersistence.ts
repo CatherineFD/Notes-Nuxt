@@ -17,7 +17,7 @@ export function saveDraftToLS(note: Note): void {
   if (!note?.id) return;
 
   try {
-    const cleanNote = JSON.parse(JSON.stringify(note)) as Note;
+    const cleanNote =  JSON.parse(JSON.stringify(note));
 
     const data: DraftStorageData = {
       schemaVersion: SCHEMA_VERSION,

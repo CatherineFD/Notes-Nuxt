@@ -5,6 +5,7 @@ import type { Todo } from '~/entities/note/model/types'
 import BaseCheckBox from '~/shared/ui/base/BaseCheckBox.vue'
 import BaseInput from '~/shared/ui/base/BaseInput.vue'
 import BaseButton from '~/shared/ui/button/BaseButton.vue'
+import IconClose from '~/shared/ui/icon/IconClose.vue'
 
 const props = defineProps<{
   todo: Todo
@@ -66,10 +67,10 @@ function handleBlur() {
     />
 
     <BaseButton
-      variant="danger"
+      variant="ghost"
       @click="emit('remove', todo)"
     >
-      Удалить
+      <IconClose/>
     </BaseButton>
   </div>
 </template>

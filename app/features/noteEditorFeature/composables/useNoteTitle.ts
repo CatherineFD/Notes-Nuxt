@@ -9,7 +9,7 @@ export function useNoteTitle() {
   let titleSnapshot = title.value
 
   watch(
-    () => editorStore.draft?.title,
+    () => editorStore.draft?.title ?? '',
     (newTitle) => {
       if (newTitle !== undefined) {
         title.value = newTitle

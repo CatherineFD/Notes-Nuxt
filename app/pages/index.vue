@@ -5,6 +5,7 @@ import BaseList from '~/shared/ui/base/BaseList.vue'
 import BaseButton from '~/shared/ui/button/BaseButton.vue'
 import { useNotesListPage } from './lib/useNotesListPage'
 import NoteDeleteModal from '~/entities/note/ui/NoteDeleteModal.vue'
+import IconPlus from '~/shared/ui/icon/IconPlus.vue'
 
 const {
   notes,
@@ -13,7 +14,6 @@ const {
   handleEdit,
   requestDelete,
   confirmDelete,
-  cancelDelete,
 } = useNotesListPage();
 
 </script>
@@ -23,7 +23,8 @@ const {
     <header class="page-header">
       <h1 class="page-title">Мои заметки</h1>
       <BaseButton variant="primary" @click="navigateTo('/notes/new')">
-        + Создать заметку
+        <IconPlus/>
+        Создать заметку
       </BaseButton>
     </header>
 

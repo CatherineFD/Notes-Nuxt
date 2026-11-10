@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { Note } from '~/entities/note/model/types'
-import BaseButton from '~/shared/ui/button/BaseButton.vue'
+import { computed } from 'vue';
+import type { Note } from '~/entities/note/model/types';
+import BaseButton from '~/shared/ui/button/BaseButton.vue';
+import IconEdit from '~/shared/ui/icon/IconEdit.vue';
+import IconTrash from '~/shared/ui/icon/IconTrash.vue';
 
 const props = defineProps<{
   note: Note
@@ -21,11 +23,16 @@ const hasMoreTodos = computed(() => props.note.todoList.length > 3)
     <header class="note-card__header">
       <h3 class="note-card__title">{{ note.title || 'Без названия' }}</h3>
       <div class="note-card__actions">
-        <BaseButton variant="secondary" @click.stop="emit('edit', note)">
-          Изменить
+        <BaseButton variant="ghost" @click.stop="emit('edit', note)" title="Изменить">
+          <IconEdit :size="18" />
         </BaseButton>
-        <BaseButton variant="danger" @click.stop="emit('delete', note)">
-          Удалить
+        <BaseButton 
+          variant="ghost" 
+          class="delete-btn" 
+          @click.stop="emit('delete', note)" 
+          title="Удалить"
+        >
+          <IconTrash :size="18" color="red" />
         </BaseButton>
       </div>
     </header>
