@@ -5,7 +5,7 @@ import BaseInput from '~/shared/ui/base/BaseInput.vue';
 import BaseButton from '~/shared/ui/button/BaseButton.vue';
 import TodoList from '~/features/noteEditorFeature/ui/TodoList.vue';
 import NoteDeleteModal from '~/entities/note/ui/NoteDeleteModal.vue';
-import NoteCancelEditModal from '~/features/noteEditorFeature/ui/NoteCancelEditModal.vue';
+import NoteCancelEditModal from './ui/NoteCancelEditModal.vue';
 import { useNoteEditorActions } from '~/features/noteEditorFeature/composables/useNoteEditorActions.ts';
 import { useNoteHistory } from '~/features/noteEditorFeature/composables/useNoteHistory.ts';
 import { useNoteTitle } from '~/features/noteEditorFeature/composables/useNoteTitle.ts';

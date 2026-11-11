@@ -2,28 +2,30 @@
 import NoteEditorFeature from '~/features/noteEditorFeature/NoteEditorFeature.vue';
 import BaseModal from '~/shared/ui/base/BaseModal.vue';
 import BaseButton from '~/shared/ui/button/BaseButton.vue';
-import ButtonLink from '~/shared/ui/button/ButtonLink.vue';
 import { useNoteEditorPage } from './lib/useNoteEditorPage';
 import IconArrow from '~/shared/ui/icon/IconArrow.vue';
 
 const {
   notesStore,
-  editorStore,
   showRestoreModal,
+  showUnsavedModal,
   handleSave,
   handleCancel,
   handleDelete,
   restoreDraft,
   discardDraft,
+  handleBackRequest,
+  confirmDiscardAndLeave,
 } = useNoteEditorPage();
 
 </script>
 
 <template>
   <div class="page-container">
-    <ButtonLink to="/">
+    <BaseButton variant="ghost" class="back-btn" @click="handleBackRequest">
       <IconArrow direction="left"/>
-    </ButtonLink>
+      Назад
+    </BaseButton>
 
     <div v-if="notesStore.isLoading" class="loading-state">
       <p>Загрузка заметки...</p>
@@ -42,13 +44,29 @@ const {
       title="Восстановить несохранённые изменения?"
       @close="discardDraft"
     >
-      <p>Для этой заметки найден несохранённый черновик. Хотите его загрузить?</p>
+      <p>Найден несохранённый черновик новой заметки. Хотите его загрузить?</p>
       <template #footer>
         <BaseButton variant="secondary" @click="discardDraft">
           Нет, начать заново
         </BaseButton>
         <BaseButton variant="primary" @click="restoreDraft">
           Да, восстановить
+        </BaseButton>
+      </template>
+    </BaseModal>
+
+    <BaseModal
+      v-model="showUnsavedModal"
+      title="Выйти без сохранения?"
+      @close="showUnsavedModal = false"
+    >
+      <p>У вас есть несохранённые изменения. Они будут потеряны, если вы покинете эту страницу.</p>
+      <template #footer>
+        <BaseButton variant="secondary" @click="showUnsavedModal = false">
+          Остаться
+        </BaseButton>
+        <BaseButton variant="danger" @click="confirmDiscardAndLeave">
+          Выйти без сохранения
         </BaseButton>
       </template>
     </BaseModal>

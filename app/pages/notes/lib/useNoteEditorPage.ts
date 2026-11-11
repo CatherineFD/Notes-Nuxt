@@ -5,103 +5,116 @@ import { loadDraftFromLS, removeDraftFromLS } from '~/features/noteEditorFeature
 import type { Note } from '~/entities/note/model/types'
 
 export function useNoteEditorPage() {
-  const route = useRoute();
-  const noteId = String(route.params.id);
+  const route = useRoute()
+  const noteId = String(route.params.id)
 
-  const useNotesStore = useNuxtApp().$notesStore;
-  const notesStore = useNotesStore();
-  const editorStore = useNoteEditorStore();
+  const useNotesStore = useNuxtApp().$notesStore
+  const notesStore = useNotesStore()
+  const editorStore = useNoteEditorStore()
 
-  const showRestoreModal = ref(false);
-  const pendingDraft = ref<Note | null>(null);
+  const showRestoreModal = ref(false)
+  const pendingDraft = ref<Note | null>(null)
+  
+  const showUnsavedModal = ref(false)
 
-  let originalNote: Note | undefined;
+  let originalNote: Note | undefined
 
-    const initializeEditor = async () => {
-        await notesStore.loadNotes()
+  const initializeEditor = async () => {
+    await notesStore.loadNotes()
 
-        const foundNote = notesStore.getNoteById(noteId)
+    const foundNote = notesStore.getNoteById(noteId)
 
-        if (!foundNote) {
-            showError(
-                createError({
-                    statusCode: 404,
-                    statusMessage: 'Заметка не найдена',
-                    message: 'Такой заметки не существует или она была удалена.',
-                    fatal: true,
-                }),
-            );
+    if (!foundNote) {
+      showError(
+        createError({
+          statusCode: 404,
+          statusMessage: 'Заметка не найдена',
+          message: 'Такой заметки не существует или она была удалена.',
+          fatal: true,
+        }),
+      )
+      return
+    }
 
-            return;
-        }
+    originalNote = foundNote
 
-        originalNote = foundNote;
+    const draft = loadDraftFromLS(noteId)
 
-        const draft = loadDraftFromLS(noteId);
-
-        if (draft) {
-            pendingDraft.value = draft;
-            showRestoreModal.value = true;
-        } else {
-            editorStore.draft = JSON.parse(JSON.stringify(foundNote));
-        }
-    };
+    if (draft) {
+      pendingDraft.value = draft
+      showRestoreModal.value = true
+    } else {
+      editorStore.draft = JSON.parse(JSON.stringify(foundNote))
+    }
+  }
 
   const handleSave = async (note: Note) => {
     try {
       await notesStore.upsertNote(note)
-
       removeDraftFromLS(noteId)
-
-      originalNote = JSON.parse(JSON.stringify(note));
-
-      editorStore.clearHistory();
+      originalNote = JSON.parse(JSON.stringify(note)) as Note
+      editorStore.clearHistory()
     } catch (error) {
       console.error('Ошибка при сохранении заметки:', error)
     }
   }
 
+  const handleBackRequest = () => {
+    if (editorStore.canUndo) {
+      showUnsavedModal.value = true
+    } else {
+      navigateTo('/')
+    }
+  }
+
+  const confirmDiscardAndLeave = () => {
+    showUnsavedModal.value = false
+    editorStore.cleanup()
+    navigateTo('/')
+  }
+
   const handleCancel = () => {
-    navigateTo('/');
-  };
+    handleBackRequest()
+  }
 
   const handleDelete = async (id: string) => {
     try {
-      notesStore.deleteNote(id);
-      removeDraftFromLS(id);
-
-      editorStore.cleanup();
-      navigateTo('/');
+      notesStore.deleteNote(id)
+      removeDraftFromLS(id)
+      editorStore.cleanup()
+      navigateTo('/')
     } catch (error) {
-      console.error('Ошибка при удалении заметки:', error);
+      console.error('Ошибка при удалении заметки:', error)
     }
-  };
+  }
 
   const restoreDraft = () => {
     if (pendingDraft.value) {
-      editorStore.draft =  JSON.parse(JSON.stringify(pendingDraft.value));
+      editorStore.draft = JSON.parse(JSON.stringify(pendingDraft.value))
     }
-    showRestoreModal.value = false;
-  };
+    showRestoreModal.value = false
+  }
 
   const discardDraft = () => {
-    removeDraftFromLS(noteId);
-
+    removeDraftFromLS(noteId)
     if (originalNote) {
-      editorStore.draft =  JSON.parse(JSON.stringify(originalNote));
+      editorStore.draft = JSON.parse(JSON.stringify(originalNote))
     }
-    showRestoreModal.value = false;
-  };
+    showRestoreModal.value = false
+  }
 
   onMounted(() => {
-    initializeEditor();
-  });
+    initializeEditor()
+  })
 
   return {
     notesStore,
     editorStore,
     showRestoreModal,
+    showUnsavedModal,
     handleSave,
+    handleBackRequest,
+    confirmDiscardAndLeave,
     handleCancel,
     handleDelete,
     restoreDraft,

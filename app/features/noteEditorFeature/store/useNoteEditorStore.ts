@@ -50,15 +50,16 @@ export const useNoteEditorStore = defineStore('note-editor', () => {
     redoStack.value = [];
   }
 
-  function clearHistory() {
-    undoStack.value = [];
-    redoStack.value = [];
-  }
-
   function clearDraftStorage() {
     if (draft.value) {
       removeDraftFromLS(draft.value.id)
     }
+  }
+
+  function clearHistory() {
+    undoStack.value = [];
+    redoStack.value = [];
+    clearDraftStorage();
   }
 
   function cleanup() {
